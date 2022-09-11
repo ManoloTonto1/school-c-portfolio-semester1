@@ -1,0 +1,44 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30114.105
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test", "test\test.csproj", "{00575170-1257-4D8F-A1BF-D6591AB6489C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "src", "src\kaart\src.csproj", "{59887E30-E484-49F6-BA15-9821A9139F13}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{56A95202-E3B0-4F43-91EF-B78A2E3B3286}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "authenticatie", "src\authenticatie\authenticatie.csproj", "{2A337FA9-B4A6-4A74-9C3F-3F3FDCCD1990}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C1EF3B2A-EE3B-4000-9F77-45C8E5167E6C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1EF3B2A-EE3B-4000-9F77-45C8E5167E6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1EF3B2A-EE3B-4000-9F77-45C8E5167E6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1EF3B2A-EE3B-4000-9F77-45C8E5167E6C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{00575170-1257-4D8F-A1BF-D6591AB6489C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{00575170-1257-4D8F-A1BF-D6591AB6489C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{00575170-1257-4D8F-A1BF-D6591AB6489C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{00575170-1257-4D8F-A1BF-D6591AB6489C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59887E30-E484-49F6-BA15-9821A9139F13}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59887E30-E484-49F6-BA15-9821A9139F13}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59887E30-E484-49F6-BA15-9821A9139F13}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59887E30-E484-49F6-BA15-9821A9139F13}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A337FA9-B4A6-4A74-9C3F-3F3FDCCD1990}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A337FA9-B4A6-4A74-9C3F-3F3FDCCD1990}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A337FA9-B4A6-4A74-9C3F-3F3FDCCD1990}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A337FA9-B4A6-4A74-9C3F-3F3FDCCD1990}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{59887E30-E484-49F6-BA15-9821A9139F13} = {42664AB1-CDDE-4BDF-BD83-C5A68AD0976C}
+		{2A337FA9-B4A6-4A74-9C3F-3F3FDCCD1990} = {56A95202-E3B0-4F43-91EF-B78A2E3B3286}
+	EndGlobalSection
+EndGlobal
