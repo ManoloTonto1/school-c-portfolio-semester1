@@ -3,10 +3,15 @@ namespace authenticatie
 
     class GebruikerService
     {
+        GebruikerContext context = GebruikerContext.GetInstance();
+
 
         public Gebruiker Registreer(string email, string Wachtwoord)
         {
-            if (GebruikerContext.gebruikers.Exists(x => x.Email == email )){
+
+
+            if (context.gebruikers.Exists(x => x.Email == email))
+            {
                 System.Console.WriteLine("user already exists");
                 return null;
             }
@@ -18,16 +23,18 @@ namespace authenticatie
 
             var success = emailService.Email(gebruiker.token.token, gebruiker.Email);
 
-            if (!success){
+            if (!success)
+            {
                 System.Console.WriteLine("failed to create user");
             }
             System.Console.WriteLine("Account created!");
+            context.NewGebruiker(gebruiker);
             return gebruiker;
         }
 
         public bool Login(string email, string password)
         {
-            if (GebruikerContext.gebruikers.Exists(x => x.Email == email && x.Wachtwoord == password))
+            if (context.gebruikers.Exists(x => x.Email == email && x.Wachtwoord == password))
             {
                 System.Console.WriteLine("Logged in!");
                 return true;
@@ -38,13 +45,14 @@ namespace authenticatie
 
         public bool Verifeer(string email, string token)
         {
-
-            if (GebruikerContext.gebruikers.Exists(x => x.Email == email && x.token.token == token))
+            System.Console.WriteLine(context.AantalGebruikers());
+            if (context.gebruikers.Exists(x => x.Email == email && x.token.token == token))
             {
                 System.Console.WriteLine("Account Verified!");
                 return true;
             }
             System.Console.WriteLine("Verification failed, check if details are correct");
+
             return false;
         }
 

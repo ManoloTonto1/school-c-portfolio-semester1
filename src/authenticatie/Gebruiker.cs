@@ -7,7 +7,7 @@ namespace authenticatie
         public string Wachtwoord { get; set; }
         public string Email { get; set; }
 
-        public VerificatieToken? token;
+        public VerificatieToken token;
 
         public Gebruiker(string email, string password)
         {
