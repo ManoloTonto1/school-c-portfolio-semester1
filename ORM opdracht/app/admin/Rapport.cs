@@ -1,6 +1,7 @@
 using System;
 
-namespace admin{
+namespace admin
+{
 
     public class Rapport
     {
@@ -9,14 +10,16 @@ namespace admin{
 
         public async Task<string> Geneer()
         {
+            return "";
+        }
+
+        public async Task VoerUit()
+        {
 
         }
 
-        public async Task VoerUit(){
-
-        }
-
-        public async Task VoerPeriodiekUit(Func<bool> stop){
+        public async Task VoerPeriodiekUit(Func<bool> stop)
+        {
 
         }
     }
