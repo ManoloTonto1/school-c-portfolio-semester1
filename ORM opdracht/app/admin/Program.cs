@@ -1,8 +1,10 @@
 ﻿namespace admin {
 
-    class Main {
+    class main {
 
-        public static void main(string[] args){
+        public static void Main(string[] args){
+
+            System.Console.WriteLine("Hello world");
 
         }
     }
