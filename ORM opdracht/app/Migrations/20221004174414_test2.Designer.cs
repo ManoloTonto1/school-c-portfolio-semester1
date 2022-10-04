@@ -12,8 +12,8 @@ using admin;
 namespace admin.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20221003233924_test1")]
-    partial class test1
+    [Migration("20221004174414_test2")]
+    partial class test2
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -38,66 +38,7 @@ namespace admin.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Attractie");
-                });
-
-            modelBuilder.Entity("admin.DateTimeBereik", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<DateTime>("Begin")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("Eind")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("DateTimeBereik");
-                });
-
-            modelBuilder.Entity("admin.Gast", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<int>("Credits")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("EersteBezoek")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("GeboorteDatum")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("attractieId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("gastInfoId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("isBegeleider")
-                        .HasColumnType("bit");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("attractieId");
-
-                    b.HasIndex("gastInfoId")
-                        .IsUnique();
-
-                    b.ToTable("Gasten");
+                    b.ToTable("Attracties");
                 });
 
             modelBuilder.Entity("admin.GastInfo", b =>
@@ -119,7 +60,7 @@ namespace admin.Migrations
                     b.ToTable("GastInfo");
                 });
 
-            modelBuilder.Entity("admin.Medewerker", b =>
+            modelBuilder.Entity("admin.Gebruiker", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -133,16 +74,16 @@ namespace admin.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Medewerkers");
+                    b.ToTable("Gebruikers", (string)null);
                 });
 
             modelBuilder.Entity("admin.OnderHoud", b =>
                 {
-                    b.Property<int>("ID")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("Probleem")
                         .IsRequired()
@@ -151,11 +92,11 @@ namespace admin.Migrations
                     b.Property<int>("attractieId")
                         .HasColumnType("int");
 
-                    b.HasKey("ID");
+                    b.HasKey("Id");
 
                     b.HasIndex("attractieId");
 
-                    b.ToTable("OnderHoud");
+                    b.ToTable("OnderHouden");
                 });
 
             modelBuilder.Entity("admin.Reservering", b =>
@@ -169,9 +110,6 @@ namespace admin.Migrations
                     b.Property<int>("attractieId")
                         .HasColumnType("int");
 
-                    b.Property<int>("datumReserveeringId")
-                        .HasColumnType("int");
-
                     b.Property<int>("gastId")
                         .HasColumnType("int");
 
@@ -179,60 +117,80 @@ namespace admin.Migrations
 
                     b.HasIndex("attractieId");
 
-                    b.HasIndex("datumReserveeringId");
-
                     b.HasIndex("gastId");
 
                     b.ToTable("Reservering");
                 });
 
-            modelBuilder.Entity("MedewerkerOnderHoud", b =>
+            modelBuilder.Entity("OnderhoudenTeCoordineren", b =>
                 {
                     b.Property<int>("coordinatorenId")
                         .HasColumnType("int");
 
-                    b.Property<int>("onderhoudenTeCoordinerenID")
+                    b.Property<int>("onderhoudenTeCoordinerenId")
                         .HasColumnType("int");
 
-                    b.HasKey("coordinatorenId", "onderhoudenTeCoordinerenID");
+                    b.HasKey("coordinatorenId", "onderhoudenTeCoordinerenId");
 
-                    b.HasIndex("onderhoudenTeCoordinerenID");
+                    b.HasIndex("onderhoudenTeCoordinerenId");
 
-                    b.ToTable("MedewerkerOnderHoud");
+                    b.ToTable("OnderhoudenTeCoordineren");
                 });
 
-            modelBuilder.Entity("MedewerkerOnderHoud1", b =>
+            modelBuilder.Entity("OnderhoudenTeDoen", b =>
                 {
                     b.Property<int>("medewerkersId")
                         .HasColumnType("int");
 
-                    b.Property<int>("onderhoudenTeDoenID")
+                    b.Property<int>("onderhoudenTeDoenId")
                         .HasColumnType("int");
 
-                    b.HasKey("medewerkersId", "onderhoudenTeDoenID");
+                    b.HasKey("medewerkersId", "onderhoudenTeDoenId");
 
-                    b.HasIndex("onderhoudenTeDoenID");
+                    b.HasIndex("onderhoudenTeDoenId");
 
-                    b.ToTable("MedewerkerOnderHoud1");
+                    b.ToTable("OnderhoudenTeDoen");
                 });
 
             modelBuilder.Entity("admin.Gast", b =>
                 {
-                    b.HasOne("admin.Attractie", "FavoriteAttractie")
-                        .WithMany("gastenFav")
-                        .HasForeignKey("attractieId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasBaseType("admin.Gebruiker");
 
-                    b.HasOne("admin.GastInfo", "info")
-                        .WithOne("gast")
-                        .HasForeignKey("admin.Gast", "gastInfoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Property<int>("Credits")
+                        .HasColumnType("int");
 
-                    b.Navigation("FavoriteAttractie");
+                    b.Property<DateTime>("EersteBezoek")
+                        .HasColumnType("datetime2");
 
-                    b.Navigation("info");
+                    b.Property<int>("FavAttractieID")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("FavoriteAttractieId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("GeboorteDatum")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("gastInfoID")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("isBegeleider")
+                        .HasColumnType("bit");
+
+                    b.HasIndex("FavoriteAttractieId");
+
+                    b.HasIndex("gastInfoID")
+                        .IsUnique()
+                        .HasFilter("[gastInfoID] IS NOT NULL");
+
+                    b.ToTable("Gasten", (string)null);
+                });
+
+            modelBuilder.Entity("admin.Medewerker", b =>
+                {
+                    b.HasBaseType("admin.Gebruiker");
+
+                    b.ToTable("Medewerkers", (string)null);
                 });
 
             modelBuilder.Entity("admin.GastInfo", b =>
@@ -262,26 +220,44 @@ namespace admin.Migrations
             modelBuilder.Entity("admin.OnderHoud", b =>
                 {
                     b.HasOne("admin.Attractie", "attractieOmTeOnderhouden")
-                        .WithMany()
+                        .WithMany("onderHouden")
                         .HasForeignKey("attractieId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.OwnsOne("admin.DateTimeBereik", "datumonderhoud", b1 =>
+                        {
+                            b1.Property<int>("OnderHoudId")
+                                .HasColumnType("int");
+
+                            b1.Property<DateTime>("Begin")
+                                .HasColumnType("datetime2");
+
+                            b1.Property<DateTime?>("Eind")
+                                .HasColumnType("datetime2");
+
+                            b1.Property<int>("Id")
+                                .HasColumnType("int");
+
+                            b1.HasKey("OnderHoudId");
+
+                            b1.ToTable("OnderHouden");
+
+                            b1.WithOwner()
+                                .HasForeignKey("OnderHoudId");
+                        });
+
                     b.Navigation("attractieOmTeOnderhouden");
+
+                    b.Navigation("datumonderhoud");
                 });
 
             modelBuilder.Entity("admin.Reservering", b =>
                 {
-                    b.HasOne("admin.Attractie", "attracties")
-                        .WithMany()
+                    b.HasOne("admin.Attractie", "attractie")
+                        .WithMany("reserveringen")
                         .HasForeignKey("attractieId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("admin.DateTimeBereik", "datumReserveering")
-                        .WithMany()
-                        .HasForeignKey("datumReserveeringId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("admin.Gast", "gast")
@@ -290,14 +266,37 @@ namespace admin.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("attracties");
+                    b.OwnsOne("admin.DateTimeBereik", "datumReserveering", b1 =>
+                        {
+                            b1.Property<int>("ReserveringId")
+                                .HasColumnType("int");
 
-                    b.Navigation("datumReserveering");
+                            b1.Property<DateTime>("Begin")
+                                .HasColumnType("datetime2");
+
+                            b1.Property<DateTime?>("Eind")
+                                .HasColumnType("datetime2");
+
+                            b1.Property<int>("Id")
+                                .HasColumnType("int");
+
+                            b1.HasKey("ReserveringId");
+
+                            b1.ToTable("Reservering");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ReserveringId");
+                        });
+
+                    b.Navigation("attractie");
+
+                    b.Navigation("datumReserveering")
+                        .IsRequired();
 
                     b.Navigation("gast");
                 });
 
-            modelBuilder.Entity("MedewerkerOnderHoud", b =>
+            modelBuilder.Entity("OnderhoudenTeCoordineren", b =>
                 {
                     b.HasOne("admin.Medewerker", null)
                         .WithMany()
@@ -307,12 +306,12 @@ namespace admin.Migrations
 
                     b.HasOne("admin.OnderHoud", null)
                         .WithMany()
-                        .HasForeignKey("onderhoudenTeCoordinerenID")
+                        .HasForeignKey("onderhoudenTeCoordinerenId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("MedewerkerOnderHoud1", b =>
+            modelBuilder.Entity("OnderhoudenTeDoen", b =>
                 {
                     b.HasOne("admin.Medewerker", null)
                         .WithMany()
@@ -322,18 +321,49 @@ namespace admin.Migrations
 
                     b.HasOne("admin.OnderHoud", null)
                         .WithMany()
-                        .HasForeignKey("onderhoudenTeDoenID")
+                        .HasForeignKey("onderhoudenTeDoenId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("admin.Gast", b =>
+                {
+                    b.HasOne("admin.Attractie", "FavoriteAttractie")
+                        .WithMany("gastenFav")
+                        .HasForeignKey("FavoriteAttractieId");
+
+                    b.HasOne("admin.Gebruiker", null)
+                        .WithOne()
+                        .HasForeignKey("admin.Gast", "Id")
+                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .IsRequired();
+
+                    b.HasOne("admin.GastInfo", "info")
+                        .WithOne("gast")
+                        .HasForeignKey("admin.Gast", "gastInfoID")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("FavoriteAttractie");
+
+                    b.Navigation("info");
+                });
+
+            modelBuilder.Entity("admin.Medewerker", b =>
+                {
+                    b.HasOne("admin.Gebruiker", null)
+                        .WithOne()
+                        .HasForeignKey("admin.Medewerker", "Id")
+                        .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired();
                 });
 
             modelBuilder.Entity("admin.Attractie", b =>
                 {
                     b.Navigation("gastenFav");
-                });
 
-            modelBuilder.Entity("admin.Gast", b =>
-                {
+                    b.Navigation("onderHouden");
+
                     b.Navigation("reserveringen");
                 });
 
@@ -341,6 +371,11 @@ namespace admin.Migrations
                 {
                     b.Navigation("gast")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("admin.Gast", b =>
+                {
+                    b.Navigation("reserveringen");
                 });
 #pragma warning restore 612, 618
         }

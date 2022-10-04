@@ -6,9 +6,10 @@ using System.Collections.Generic;
 
 namespace admin
 {
-
     public class DemogragischRapport : Rapport
     {
+
+        private DatabaseContext context = DatabaseContext.getInstance();
 
         public string Naam()
         {
@@ -24,48 +25,61 @@ namespace admin
 
         async Task<int> AantalGebruikers()
         {
+            var result = await Task.Run(() => context.Gebruikers.Count<Gebruiker>());
 
-            return 0;
+            return result;
         }
 
         async Task<bool> AlleGastenHebbenReservering()
         {
-
-            return true;
+            var result = await Task.Run(() => context.Gasten.All<Gast>(g => g.reserveringen != null));
+            return result;
         }
 
-        async Task<int> AantalSinds(DateTime date, bool uniek)
+        async Task<int> AantalSinds(DateTime date, bool uniek = false)
         {
-            return 0;
+
+            if(uniek){
+
+                return await Task.Run(() => context.Gasten.Where(g => g.EersteBezoek >= date).Select(g => g.EersteBezoek).Distinct().Count());
+            }
+
+            return await Task.Run(() => context.Gasten.Where<Gast>(g => g.EersteBezoek >= date).Count<Gast>());
 
         }
 
         async Task<Gast?> GastBijEmail(string email)
         {
-
-            return new Gast("");
-
+            return await Task.Run(() => context.Gasten.Where(g => g.Email == email).FirstOrDefault());
         }
 
         async Task<Gast> GastBijGeboorteDatum(DateTime datetime)
         {
-            return new Gast("");
+            var result = await Task.Run(() => context.Gasten.Where(g => g.GeboorteDatum == datetime).FirstOrDefault());
+
+            if(result != null) return result;
+
+            throw new Exception("Does not exist, or not found"); 
         }
 
         async Task<int> PercentageBejaarden()
         {
-            return 0;
+            var _80YearsAgo = new DateTime().Year - 80;
+            var result80s = await Task.Run(() => context.Gasten.Where(g => g.GeboorteDatum.Year <= _80YearsAgo).Count());
+            var resultAll = await Task.Run(() => context.Gasten.Count());
+
+            var total = result80s * 100 / resultAll;
+            return total;
         }
 
-        async Task<int> HoogsteBejaarden()
+        async Task<DateTime> HoogsteLeeftijd()
         {
-            return 0;
+            return await Task.Run(() => context.Gasten.Max(g => g.GeboorteDatum));
         }
 
-        async Task<IEnumerable<Gast>> Blut(IEnumerable<Gast> gast)
+        async Task<IEnumerable<Gast>> Blut(IEnumerable<Gast> gasten)
         {
-            return gast;
-
+            return await Task.Run(() => gasten.Where(g => g.Credits != 0));
         }
 
         async Task<(string, int)[]> VerdelingPerDag()

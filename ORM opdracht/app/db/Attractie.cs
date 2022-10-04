@@ -8,23 +8,31 @@ namespace admin
     {
         // relationships
         public int Id { get; set; }
-        public List<Reservering> reserveringen = new List<Reservering>();
-        public List<Gast> gastenFav = new List<Gast>();
+        public List<Reservering> reserveringen { get; set; }
+        public List<Gast> gastenFav { get; set; }
 
-        public List<OnderHoud> onderHouden = new List<OnderHoud>();
+        public List<OnderHoud> onderHouden { get; set; }
 
         // props
         public string Naam { get; set; }
 
         public async Task<bool> OnderhoudBezig(DatabaseContext context)
         {
+            var now = new DateTime().Date;
+            var q = await Task.Run(() => context.OnderHouden.Where(o => o.datumonderhoud.Eind < now).Count());
 
-            return true;
+            if (q > 0) return true;
+            return false;
+
+
         }
         public async Task<bool> Vrij(DatabaseContext context, DateTimeBereik bereik)
         {
 
-            return true;
+            var q = await Task.Run(() => context.Reserveringen.Single(r => r.datumReserveering == bereik));
+
+            if(q == null) return true;
+            return false;
         }
     }
 }

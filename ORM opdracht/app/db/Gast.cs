@@ -5,12 +5,12 @@ namespace admin
     {
         // relationships
         public bool isBegeleider { get; set; } = false;
-        public List<Reservering> reserveringen = new List<Reservering>();
+        public List<Reservering> reserveringen { get; set; }
 
-        public int attractieId { get; set; }
+        public int FavAttractieID { get; set; }
         public Attractie? FavoriteAttractie { get; set; }
 
-        public int gastInfoId { get; set; }
+        public int gastInfoID { get; set; }
         public GastInfo info { get; set; }
 
         // props
