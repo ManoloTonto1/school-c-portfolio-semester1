@@ -4,20 +4,12 @@ namespace admin
 
     public class DatabaseContext : DbContext
     {
-        static DatabaseContext? instance { get; set; }
-
-        private DatabaseContext() { }
-
-        public static DatabaseContext getInstance()
-        {
-            if (instance == null) instance = new DatabaseContext();
-            return instance;
-        }
+        
 
         public async Task<bool> Boek(Gast gast, Attractie attractie, DateTimeBereik dateTimeBereik)
         {
 
-            var isVrij = await new Attractie().Vrij(getInstance(), dateTimeBereik);
+            var isVrij = await new Attractie().Vrij(this, dateTimeBereik);
 
             if (!isVrij) return false;
 
@@ -40,9 +32,6 @@ namespace admin
 
                 return false;
             }
-
-
-
         }
 
         // Setup
@@ -81,6 +70,9 @@ namespace admin
                 .WithOne(gi => gi.gast)
                 .HasForeignKey<Gast>(g => g.gastInfoID)
                 .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Gast>()
+                .HasOne(g => g.begeleider);
 
             modelBuilder.Entity<Gast>()
                 .HasMany(g => g.reserveringen)

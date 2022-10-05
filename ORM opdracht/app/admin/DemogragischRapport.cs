@@ -1,21 +1,11 @@
-using System.Threading.Tasks;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-
-
 namespace admin
 {
     public class DemogragischRapport : Rapport
     {
 
-        private DatabaseContext context = DatabaseContext.getInstance();
+        private DatabaseContext context = new DatabaseContext();
 
-        public string Naam()
-        {
-
-            return "";
-        }
+        public string Naam { get; set; }
 
         public async Task<int> Genereer()
         {

@@ -117,7 +117,7 @@ namespace admin.Migrations
 
                     b.HasIndex("gastId");
 
-                    b.ToTable("Reservering");
+                    b.ToTable("Reserveringen");
                 });
 
             modelBuilder.Entity("OnderhoudenTeCoordineren", b =>
@@ -169,6 +169,9 @@ namespace admin.Migrations
                     b.Property<DateTime>("GeboorteDatum")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("begeleiderId")
+                        .HasColumnType("int");
+
                     b.Property<int>("gastInfoID")
                         .HasColumnType("int");
 
@@ -176,6 +179,8 @@ namespace admin.Migrations
                         .HasColumnType("bit");
 
                     b.HasIndex("FavoriteAttractieId");
+
+                    b.HasIndex("begeleiderId");
 
                     b.HasIndex("gastInfoID")
                         .IsUnique()
@@ -280,7 +285,7 @@ namespace admin.Migrations
 
                             b1.HasKey("ReserveringId");
 
-                            b1.ToTable("Reservering");
+                            b1.ToTable("Reserveringen");
 
                             b1.WithOwner()
                                 .HasForeignKey("ReserveringId");
@@ -336,6 +341,10 @@ namespace admin.Migrations
                         .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired();
 
+                    b.HasOne("admin.Gast", "begeleider")
+                        .WithMany()
+                        .HasForeignKey("begeleiderId");
+
                     b.HasOne("admin.GastInfo", "info")
                         .WithOne("gast")
                         .HasForeignKey("admin.Gast", "gastInfoID")
@@ -343,6 +352,8 @@ namespace admin.Migrations
                         .IsRequired();
 
                     b.Navigation("FavoriteAttractie");
+
+                    b.Navigation("begeleider");
 
                     b.Navigation("info");
                 });

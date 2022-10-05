@@ -5,6 +5,10 @@ namespace admin{
 
     public class Reservering{
 
+        public Reservering(){
+
+        }
+        
         public Reservering(Attractie a, DateTimeBereik d, Gast g){
             gast = g;
             attractie = a;

@@ -4,7 +4,7 @@ namespace admin
     public class Gast : Gebruiker
     {
         // relationships
-        public bool isBegeleider { get; set; } = false;
+        public Gast? begeleider { get; set; }
         public List<Reservering> reserveringen { get; set; }
 
         public int FavAttractieID { get; set; }
