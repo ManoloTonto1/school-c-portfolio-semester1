@@ -4,8 +4,6 @@ namespace admin{
     public class GastInfo{
 
         // relationships
-        public int Id { get; set; }
-
         public int gastId { get; set; }
         public Gast gast { get; set; }
         public Coordinate coordinate = new Coordinate();

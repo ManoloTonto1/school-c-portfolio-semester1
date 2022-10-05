@@ -68,7 +68,7 @@ namespace admin
             modelBuilder.Entity<Gast>()
                 .HasOne(g => g.info)
                 .WithOne(gi => gi.gast)
-                .HasForeignKey<Gast>(g => g.gastInfoID)
+                .HasForeignKey<GastInfo>(g => g.gastId)
                 .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<Gast>()
@@ -95,7 +95,7 @@ namespace admin
 
             // GastInfo
             modelBuilder.Entity<GastInfo>()
-                .HasKey(gi => gi.Id);
+                .HasKey(gi => gi.gastId);
             modelBuilder.Entity<GastInfo>()
                 .OwnsOne(gi => gi.coordinate);
 

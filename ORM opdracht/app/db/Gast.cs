@@ -10,7 +10,6 @@ namespace admin
         public int FavAttractieID { get; set; }
         public Attractie? FavoriteAttractie { get; set; }
 
-        public int gastInfoID { get; set; }
         public GastInfo info { get; set; }
 
         // props

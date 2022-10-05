@@ -6,6 +6,10 @@ namespace admin
 
     public class Attractie
     {
+        public Attractie(string n){
+            Naam = n;
+        }
+        public Attractie(){}
         // relationships
         public int Id { get; set; }
         public List<Reservering> reserveringen { get; set; }

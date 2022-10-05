@@ -41,19 +41,13 @@ namespace admin.Migrations
 
             modelBuilder.Entity("admin.GastInfo", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("gastId")
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("LaatsteBezochteUrl")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("gastId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
+                    b.HasKey("gastId");
 
                     b.ToTable("GastInfo");
                 });
@@ -172,19 +166,9 @@ namespace admin.Migrations
                     b.Property<int?>("begeleiderId")
                         .HasColumnType("int");
 
-                    b.Property<int>("gastInfoID")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("isBegeleider")
-                        .HasColumnType("bit");
-
                     b.HasIndex("FavoriteAttractieId");
 
                     b.HasIndex("begeleiderId");
-
-                    b.HasIndex("gastInfoID")
-                        .IsUnique()
-                        .HasFilter("[gastInfoID] IS NOT NULL");
 
                     b.ToTable("Gasten", (string)null);
                 });
@@ -198,9 +182,15 @@ namespace admin.Migrations
 
             modelBuilder.Entity("admin.GastInfo", b =>
                 {
+                    b.HasOne("admin.Gast", "gast")
+                        .WithOne("info")
+                        .HasForeignKey("admin.GastInfo", "gastId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
                     b.OwnsOne("admin.Coordinate", "coordinate", b1 =>
                         {
-                            b1.Property<int>("GastInfoId")
+                            b1.Property<int>("GastInfogastId")
                                 .HasColumnType("int");
 
                             b1.Property<int>("X")
@@ -209,15 +199,17 @@ namespace admin.Migrations
                             b1.Property<int>("Y")
                                 .HasColumnType("int");
 
-                            b1.HasKey("GastInfoId");
+                            b1.HasKey("GastInfogastId");
 
                             b1.ToTable("GastInfo");
 
                             b1.WithOwner()
-                                .HasForeignKey("GastInfoId");
+                                .HasForeignKey("GastInfogastId");
                         });
 
                     b.Navigation("coordinate");
+
+                    b.Navigation("gast");
                 });
 
             modelBuilder.Entity("admin.OnderHoud", b =>
@@ -345,17 +337,9 @@ namespace admin.Migrations
                         .WithMany()
                         .HasForeignKey("begeleiderId");
 
-                    b.HasOne("admin.GastInfo", "info")
-                        .WithOne("gast")
-                        .HasForeignKey("admin.Gast", "gastInfoID")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
                     b.Navigation("FavoriteAttractie");
 
                     b.Navigation("begeleider");
-
-                    b.Navigation("info");
                 });
 
             modelBuilder.Entity("admin.Medewerker", b =>
@@ -376,14 +360,11 @@ namespace admin.Migrations
                     b.Navigation("reserveringen");
                 });
 
-            modelBuilder.Entity("admin.GastInfo", b =>
-                {
-                    b.Navigation("gast")
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("admin.Gast", b =>
                 {
+                    b.Navigation("info")
+                        .IsRequired();
+
                     b.Navigation("reserveringen");
                 });
 #pragma warning restore 612, 618
