@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=5.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <h1 id="title">Welkom op mijn teller</h1>
+    <p id="count">0</p>
+    <button id="btn">Click me</button>
+
+</body>
+<script>
+    document.getElementById("btn").addEventListener("click", () => {
+        let counter = document.getElementById("count");
+        counter.innerHTML = parseInt(counter.innerHTML) + 1;
+
+        // if count is 10 change title
+        if (counter.innerHTML == 5) {
+            const title = document.getElementById("title");
+            title.innerHTML = "Waarom ben je nog steeds hier?";
+            title.style.color = "white";
+            counter.style.color = "white";
+            document.body.style.backgroundColor = "red";
+
+        }
+        if (counter.innerHTML == 10) {
+            const tag = document.createElement("h1") 
+            tag.style.color = "white";
+            const text = document.createTextNode ("LEAVE NOW!!!!");
+            tag.appendChild(text)
+            const element = document.body.appendChild(tag);
+        }
+
+    })
+</script>
+
+</html>
