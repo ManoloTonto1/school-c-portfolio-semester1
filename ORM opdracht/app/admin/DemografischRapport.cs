@@ -1,5 +1,6 @@
 namespace admin
 {
+
     public class DemografischRapport : Rapport
     {
 
@@ -11,6 +12,8 @@ namespace admin
 
         public async override Task<string> Genereer()
         {
+            context.ChangeTracker.LazyLoadingEnabled = false;
+
             string ret = "Dit is een demografisch rapport: \n";
             ret += $"Er zijn in totaal {await AantalGebruikers()} gebruikers van dit platform (dat zijn gasten en medewerkers)\n";
             var dateTime = new DateTime(2000, 1, 1);
@@ -75,7 +78,7 @@ namespace admin
 
         async Task<int> PercentageBejaarden()
         {
-            var _80YearsAgo = new DateTime().Year - 80;
+            var _80YearsAgo = DateTime.Now.Year - 80;
             var result80s = await Task.Run(() => context.Gasten.Where(g => g.GeboorteDatum.Year <= _80YearsAgo).Count());
             var resultAll = await Task.Run(() => context.Gasten.Count());
 
@@ -83,9 +86,12 @@ namespace admin
             return total;
         }
 
-        async Task<DateTime> HoogsteLeeftijd()
+        async Task<int> HoogsteLeeftijd()
         {
-            return await Task.Run(() => context.Gasten.Max(g => g.GeboorteDatum));
+            return await Task.Run(() => {
+                var date = context.Gasten.Min(g => g.GeboorteDatum);
+                return DateTime.Now.Year - date.Year;
+            });
         }
 
         async Task<IEnumerable<Gast>> Blut(IEnumerable<Gast> gasten)
@@ -94,10 +100,27 @@ namespace admin
         }
 
         async Task<(string dag, int aantal)[]> VerdelingPerDag()
-        {
+        {   
+            var list = await Task.Run(() =>
+            {
+                List<(string, int)> listOfDates = new List<(string, int)>();
+                var countPerDay = context.Gasten.Select(g => g.EersteBezoek).ToList();
+                for (int i = 1; i < 7; i++)
+                {
+                    var day = countPerDay.FindAll(d => (int)d.DayOfWeek == i);
+                    if (day == null){
+                        continue;
+                    }
+                    var currentDatetime = day.FirstOrDefault();
+                    var currentDay = currentDatetime.DayOfWeek.ToString();
+                    var tup = Tuple.Create(currentDay, day.Count);
+                    listOfDates.Add((tup.Item1,tup.Item2));
+                }
+                return listOfDates.ToArray();
+            });
 
-            (string, int)[] bitch = { };
-            return bitch;
+            
+            return list;
 
         }
 

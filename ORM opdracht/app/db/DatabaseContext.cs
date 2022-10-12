@@ -1,12 +1,11 @@
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 namespace admin
 {
 
     public class DatabaseContext : DbContext
     {
-        
-
-        public async Task<bool> Boek(Gast gast, Attractie attractie, DateTimeBereik dateTimeBereik)
+            public async Task<bool> Boek(Gast gast, Attractie attractie, DateTimeBereik dateTimeBereik)
         {
 
             var isVrij = await new Attractie().Vrij(this, dateTimeBereik);
