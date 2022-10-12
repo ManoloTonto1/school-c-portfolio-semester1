@@ -53,7 +53,8 @@ namespace admin
         async Task<int> AantalSinds(DateTime date, bool uniek = false)
         {
 
-            if(uniek){
+            if (uniek)
+            {
 
                 return await Task.Run(() => context.Gasten.Where(g => g.EersteBezoek >= date).Select(g => g.EersteBezoek).Distinct().Count());
             }
@@ -71,9 +72,9 @@ namespace admin
         {
             var result = await Task.Run(() => context.Gasten.Where(g => g.GeboorteDatum == datetime).FirstOrDefault());
 
-            if(result != null) return result;
+            if (result != null) return result;
 
-            throw new Exception("Does not exist, or not found"); 
+            throw new Exception("Does not exist, or not found");
         }
 
         async Task<int> PercentageBejaarden()
@@ -88,7 +89,8 @@ namespace admin
 
         async Task<int> HoogsteLeeftijd()
         {
-            return await Task.Run(() => {
+            return await Task.Run(() =>
+            {
                 var date = context.Gasten.Min(g => g.GeboorteDatum);
                 return DateTime.Now.Year - date.Year;
             });
@@ -100,7 +102,7 @@ namespace admin
         }
 
         async Task<(string dag, int aantal)[]> VerdelingPerDag()
-        {   
+        {
             var list = await Task.Run(() =>
             {
                 List<(string, int)> listOfDates = new List<(string, int)>();
@@ -108,18 +110,19 @@ namespace admin
                 for (int i = 1; i < 7; i++)
                 {
                     var day = countPerDay.FindAll(d => (int)d.DayOfWeek == i);
-                    if (day == null){
+                    if (day == null)
+                    {
                         continue;
                     }
                     var currentDatetime = day.FirstOrDefault();
                     var currentDay = currentDatetime.DayOfWeek.ToString();
                     var tup = Tuple.Create(currentDay, day.Count);
-                    listOfDates.Add((tup.Item1,tup.Item2));
+                    listOfDates.Add((tup.Item1, tup.Item2));
                 }
                 return listOfDates.ToArray();
             });
 
-            
+
             return list;
 
         }
@@ -131,7 +134,17 @@ namespace admin
 
         async Task<int> FavorietCorrect()
         {
-            return 0;
+            return await Task.Run(() =>
+            {
+                var countOfPeople = context.Gasten.Where(
+                gast =>
+                    (context.Reserveringen.Where(res => res.attractie == gast.FavoriteAttractie).Count()) > (context.Reserveringen.Where(ress => ress.gast == gast).Count())
+                ).Count();
+
+                return countOfPeople;
+            });
+
+
 
         }
 
