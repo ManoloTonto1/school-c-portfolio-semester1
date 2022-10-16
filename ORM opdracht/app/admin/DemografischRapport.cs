@@ -127,11 +127,6 @@ namespace admin
 
         }
 
-        async Task<List<(Gast, int)>> GastenMetActiviteit(IEnumerable<Gast> gast)
-        {
-            return new List<(Gast, int)>();
-        }
-
         async Task<int> FavorietCorrect()
         {
             return await Task.Run(() =>

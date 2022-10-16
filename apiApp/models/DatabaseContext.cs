@@ -5,7 +5,6 @@ public class DatabaseContext : DbContext
 {
 
     public DbSet<User> users { get; set; }
-    public DbSet<Guest> guests { get; set; }
     public DbSet<Attraction> attractions { get; set; }
 
 
@@ -13,16 +12,16 @@ public class DatabaseContext : DbContext
     {
         base.OnConfiguring(optionsBuilder);
 
-        optionsBuilder.UseSqlite(@"Server=localhost\MSSQLSERVER02;Database=ApiApp;Trusted_Connection=True;");
+        optionsBuilder.UseSqlite("Data Source=sqlitedb.db");
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<User>().HasKey(u => u.ID);
         
-        modelBuilder.Entity<Attraction>().HasKey(u => u.ID);
+        modelBuilder.Entity<Attraction>().HasKey(a => a.ID);
 
-        modelBuilder.Entity<Guest>()
+        modelBuilder.Entity<User>()
             .HasMany(u => u.likedAttractions)
             .WithMany(a => a.userLikes)
             .UsingEntity("likes");
