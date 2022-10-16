@@ -18,7 +18,7 @@ public class DatabaseContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<User>().HasKey(u => u.ID);
-        
+
         modelBuilder.Entity<Attraction>().HasKey(a => a.ID);
 
         modelBuilder.Entity<User>()

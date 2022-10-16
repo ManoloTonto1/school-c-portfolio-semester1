@@ -1,0 +1,386 @@
+{
+	"info": {
+		"_postman_id": "395dc61b-766b-4d4d-9b69-a40551a854c3",
+		"name": "SchoolApi test",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23051163"
+	},
+	"item": [
+		{
+			"name": "User routes",
+			"item": [
+				{
+					"name": "register new user",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\"username\":\"userThatLikesPeanuts\",\r\n\"password\":\"test69\",\r\n\"gender\":\"male\",\r\n\"isGuest\":true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:7252/user/",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7252",
+							"path": [
+								"user",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"userThatLikesPeanuts\",\r\n    \"password\": \"test69\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:7252/user/login",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7252",
+							"path": [
+								"user",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Like Attraction",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer user",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://localhost:7252/user/likepost?id=1&attractionName=supercoaster",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7252",
+							"path": [
+								"user",
+								"likepost"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "1"
+								},
+								{
+									"key": "attractionName",
+									"value": "supercoaster"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:7252/user/all",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7252",
+							"path": [
+								"user",
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User by Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:7252/user/?id=1",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7252",
+							"path": [
+								"user",
+								""
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "1"
+								},
+								{
+									"key": "",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Attraction by id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:7252/attraction/?id=1",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7252",
+							"path": [
+								"attraction",
+								""
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "New attraction",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer admin",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"supercoaster\",\r\n    \"fearlevel\": 5\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:7252/attraction/",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7252",
+							"path": [
+								"attraction",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "All Attractions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:7252/attraction/all",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7252",
+							"path": [
+								"attraction",
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update user",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": 1,\r\n    \"gender\": \"male\",\r\n    \"username\": \"newname\",\r\n    \"password\":\"\",\r\n    \"isGuest\": true\r\n\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:7252/user/",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7252",
+							"path": [
+								"user",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update attraction",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer admin",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": 1,\r\n    \"name\": \"new coaster\",\r\n    \"fearlevel\":7\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:7252/attraction/",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7252",
+							"path": [
+								"attraction",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "user",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer admin",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://localhost:7252/user/?id=1",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7252",
+							"path": [
+								"user",
+								""
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "attraction",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer admin",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://localhost:7252/attraction/?id=1",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7252",
+							"path": [
+								"attraction",
+								""
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
