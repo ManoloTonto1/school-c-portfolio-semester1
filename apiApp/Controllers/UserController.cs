@@ -165,28 +165,27 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("likepost")]
-    public async Task<IActionResult> likepost([FromHeader(Name = "Authorization")] string token, int id, string AttractionName)
+    public async Task<IActionResult> likepost([FromHeader(Name = "Authorization")] string token, string attractionName)
     {
         var isAllowed = jwtTools.checkTokenAndRole(token);
         if (!isAllowed.Item1)
         {
             return Unauthorized();
         }
-        var userToUpdate = context.users.Where(u => u.Id == id.ToString()).FirstOrDefault();
-        var attraction = context.attractions.Where(a => a.name == AttractionName).FirstOrDefault();
+        var userToUpdate = _userManager.FindByNameAsync(jwtTools.getUserFromToken(token)).Result;
         if (userToUpdate == null)
         {
             return NotFound("User not found");
         }
+        var attraction = await context.attractions.Where(a => a.name == attractionName).FirstOrDefaultAsync();
         if (attraction == null)
         {
             return NotFound("User not found");
         }
-        userToUpdate.likedAttractions.Add(attraction);
-        attraction.userLikes.Add(userToUpdate);
+        context.users.Where(u => u == userToUpdate).Select(u => u.likedAttractions).FirstOrDefault().Add(attraction);
         await context.SaveChangesAsync();
 
-        return Ok();
+        return Ok(attraction);
     }
     [HttpDelete]
     public async Task<ActionResult<User>> delete([FromHeader(Name = "Authorization")] string token, int id)
