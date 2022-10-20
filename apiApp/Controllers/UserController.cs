@@ -3,6 +3,12 @@ using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Mvc;
 using apiApp.models;
 using System.Net;
+using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.EntityFrameworkCore;
 
 namespace apiApp.Controllers;
 
@@ -20,144 +26,203 @@ public class UserController : ControllerBase
             prf: KeyDerivationPrf.HMACSHA256,
             iterationCount: 100000,
             numBytesRequested: 256 / 8));
-            
-            return hashed;
-    }
-    models.DatabaseContext context = new models.DatabaseContext();
-    private readonly ILogger<UserController> _logger;
 
-    public UserController(ILogger<UserController> logger)
+        return hashed;
+    }
+    private readonly DatabaseContext context = new DatabaseContext();
+    private readonly UserManager<User> _userManager;
+    private readonly UserManager<User> _signInManager;
+    private readonly JWTTools jwtTools = new JWTTools();
+    public UserController(UserManager<User> userManager)
     {
-        _logger = logger;
+        _userManager = userManager;
+        _signInManager = userManager;
     }
 
+
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<User>> Get([FromHeader(Name = "Authorization")] string token, int id)
+    {
+        var (tokenValid, isAdmin) = jwtTools.checkTokenAndRole(token);
+        if (!tokenValid && !isAdmin)
+        {
+            return Unauthorized();
+        }
+        if (context.users == null)
+        {
+            return NotFound();
+        }
+        var user = await context.users.FindAsync(id);
+
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        return user;
+
+    }
     [HttpGet]
-    public async Task<models.User> Get(int id)
+    public async Task<ActionResult<IEnumerable<User>>> GetAll([FromHeader(Name = "Authorization")] string token, int limit = 10, int offset = 0)
     {
-        return await Task.Run(() => context.users.Where(g => g.ID == id).First());
-
-    }
-    [HttpGet("all")]
-    public async Task<IEnumerable<models.User>> GetAll(int limit = 10, int offset=0)
-    {
-        return await Task.Run(() => context.users.Skip(offset).Take(limit).ToList());
-    }
-    [HttpPost("login")]
-    public models.User login([FromBody] userDataTransfer user)
-    {
-        var result = context.users.Where(u => u.userName == user.username && u.password == hashPassword(user.password)).FirstOrDefault();
-        if (result == null)
+        var (tokenValid, isAdmin) = jwtTools.checkTokenAndRole(token);
+        if (!tokenValid || !isAdmin)
         {
-            return null;
+            return Unauthorized();
         }
-        return result;
-
-    }
-    [HttpPut]
-    public models.User update([FromHeader(Name ="Authorization")]string token, [FromBody]User user)
-    {
-        if (token == null)
+        if (context.users == null)
         {
-            return null;
+            return NotFound();
         }
-        if (token.Split(" ")[0] != "Bearer"&& token.Split(" ")[1] != "user")
-        {
-            return null;
-        }
-
-        var userToUpdate = context.users.Where(u => u.ID == user.ID).FirstOrDefault();
-        if (userToUpdate == null)
-        {
-            return null;
-        }
-        if(userToUpdate.password != "")
-        {
-            userToUpdate.password = hashPassword(user.password);
-        }
-        if(userToUpdate.userName != "")
-        {
-            userToUpdate.userName = user.userName;
-        }
-        if(userToUpdate.isGuest != user.isGuest)
-        {
-            userToUpdate.isGuest = user.isGuest;
-        }
-
-        context.SaveChanges();
-        return userToUpdate;
-
-
+        return await context.users.ToListAsync();
     }
     [HttpPost]
-    public string register([FromBody] models.User user)
+    public async Task<ActionResult> Register([FromBody] User user)
     {
-        var result = context.users.Where(u => u.userName == user.userName).Count();
-        if (result == 1)
+        if (user.password == null || user.UserName == null)
         {
-            return "Username already exists";
+            return BadRequest();
         }
-        user.password = hashPassword(user.password);
-        context.users.Add(user);
-        context.SaveChanges();
-        return "User created";
 
+
+        var res = await _userManager.CreateAsync(user, hashPassword(user.password));
+        return !res.Succeeded ? new BadRequestObjectResult(res) : StatusCode(201);
     }
-    [HttpPost("likepost")]
-    public HttpResponseMessage likepost([FromHeader(Name = "Authorization")] string token,int id, string AttractionName)
+
+    [HttpPost("login")]
+    public async Task<IActionResult> Login([FromBody] userDataTransfer user)
     {
-        if (token == null)
+        var _user = await _userManager.FindByNameAsync(user.username);
+        if (_user == null)
         {
-            return null;
+            return Unauthorized();
         }
-        if (token.Split(" ")[0] != "Bearer" && token.Split(" ")[1] != "user")
+
+        if (await _userManager.CheckPasswordAsync(_user, hashPassword(user.password)))
         {
-            return null;
+            if (_user.isGuest == null)
+            {
+                return BadRequest();
+            }
+            var _role = (bool)_user.isGuest ? "guest" : "admin";
+            var secret = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("MySuperSecureKey"));
+
+            var signingCredentials = new SigningCredentials(secret, SecurityAlgorithms.HmacSha256);
+            var claims = new List<Claim> {
+                    new Claim(ClaimTypes.Name, _user.UserName),
+                    new Claim(ClaimTypes.Role, _role),
+                    };
+            var roles = await _userManager.GetRolesAsync(_user);
+            foreach (var role in roles)
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            var tokenOptions = new JwtSecurityToken
+            (
+                issuer: "https://localhost:7047",
+                audience: "https://localhost:7047",
+                claims: claims,
+                expires: DateTime.Now.AddMinutes(10),
+                signingCredentials: signingCredentials
+            );
+            return Ok(new { Token = new JwtSecurityTokenHandler().WriteToken(tokenOptions) });
         }
-        var userToUpdate = context.users.Where(u => u.ID == id).FirstOrDefault();
+
+        return Unauthorized();
+    }
+    [HttpPut("{id}")]
+    public async Task<ActionResult<User>> update([FromHeader(Name = "Authorization")] string token, int? id, [FromBody] User user)
+    {
+
+        var (tokenValid, isAdmin) = jwtTools.checkTokenAndRole(token);
+        if (!tokenValid || !isAdmin)
+        {
+            return Unauthorized();
+        }
+        if (id.ToString() != user.Id)
+        {
+            return BadRequest();
+        }
+
+        context.Entry(user).State = EntityState.Modified;
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!UserExists(id))
+            {
+                return NotFound();
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        return NoContent();
+    }
+
+    [HttpPost("likepost")]
+    public async Task<IActionResult> likepost([FromHeader(Name = "Authorization")] string token, int id, string AttractionName)
+    {
+        var isAllowed = jwtTools.checkTokenAndRole(token);
+        if (!isAllowed.Item1)
+        {
+            return Unauthorized();
+        }
+        var userToUpdate = context.users.Where(u => u.Id == id.ToString()).FirstOrDefault();
         var attraction = context.attractions.Where(a => a.name == AttractionName).FirstOrDefault();
         if (userToUpdate == null)
         {
-            System.Console.WriteLine("User not found");
-            return new HttpResponseMessage(HttpStatusCode.NotFound);
+            return NotFound("User not found");
         }
         if (attraction == null)
         {
-            System.Console.WriteLine("Attraction not found");
-            return new HttpResponseMessage(HttpStatusCode.NotFound);
+            return NotFound("User not found");
         }
         userToUpdate.likedAttractions.Add(attraction);
         attraction.userLikes.Add(userToUpdate);
-        context.SaveChanges();
-        return new HttpResponseMessage(HttpStatusCode.OK);
+        await context.SaveChangesAsync();
+
+        return Ok();
     }
     [HttpDelete]
-    public User delete([FromHeader(Name = "Authorization")] string token, int id)
+    public async Task<ActionResult<User>> delete([FromHeader(Name = "Authorization")] string token, int id)
     {
-        if (token == null)
+        var isAllowed = jwtTools.checkTokenAndRole(token);
+        if (!isAllowed.Item1)
         {
-            return null;
+            return Unauthorized();
         }
-        if (token.Split(" ")[0] != "Bearer" && token.Split(" ")[1] != "admin")
+        if (context.users == null)
         {
-            return null;
+            return NotFound();
         }
-
-        var user = context.users.Where(u => u.ID == id).FirstOrDefault();
+        var user = await context.users.FindAsync(id);
         if (user == null)
         {
-            return null;
+            return NotFound();
         }
+
         context.users.Remove(user);
-        context.SaveChanges();
-        return user;
+        await context.SaveChangesAsync();
 
-
+        return NoContent();
+    }
+    private bool UserExists(int? id)
+    {
+        return (context.users?.Any(e => e.Id == id.ToString())).GetValueOrDefault();
     }
 }
 public class userDataTransfer
 {
-    public string username { get; set; }
-    public string password { get; set; }
+    [Required(ErrorMessage = "Username is required")]
+    public string? username { get; init; }
+    [Required(ErrorMessage = "password is required")]
+    public string? password { get; init; }
 }
+
 
 

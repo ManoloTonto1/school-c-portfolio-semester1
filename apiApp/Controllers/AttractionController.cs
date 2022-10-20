@@ -1,11 +1,15 @@
 using Microsoft.AspNetCore.Mvc;
 using apiApp.models;
+using Microsoft.EntityFrameworkCore;
+
 namespace apiApp.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class AttractionController : ControllerBase{
-    models.DatabaseContext context = new models.DatabaseContext();
+public class AttractionController : ControllerBase
+{
+    private readonly JWTTools jwtTools = new JWTTools();
+    private readonly DatabaseContext context = new DatabaseContext();
     private readonly ILogger<AttractionController> _logger;
 
     public AttractionController(ILogger<AttractionController> logger)
@@ -13,90 +17,118 @@ public class AttractionController : ControllerBase{
         _logger = logger;
     }
 
-    [HttpGet]
-    public async Task<Attraction> Get(int id)
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Attraction>> Get([FromHeader(Name = "Authorization")] string token, int id)
     {
-        return await Task.Run(() => context.attractions.Where(g => g.ID == id).First());
+        var _ = jwtTools.checkTokenAndRole(token);
+        if (!_.Item1)
+        {
+            return Unauthorized();
+        }
+        var res = await context.attractions.Where(g => g.ID == id).FirstOrDefaultAsync();
+        if (res == null)
+        {
+            return NotFound();
+        }
+        return res;
+
 
     }
-    [HttpGet("all")]
-    public async Task<IEnumerable<Attraction>> GetAll(int limit = 10, int offset = 0)
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<Attraction>>> GetAll([FromHeader(Name = "Authorization")] string token, int limit = 10, int offset = 0)
     {
-        return await Task.Run(() => context.attractions.Skip(offset).Take(limit).ToList());
+        var (tokenValid, isAdmin) = jwtTools.checkTokenAndRole(token);
+        if (!tokenValid)
+        {
+            return Unauthorized();
+        }
+        var res = await context.attractions.Skip(offset).Take(limit).ToListAsync();
+        if (res == null)
+        {
+            return NotFound();
+        }
+        return res;
     }
     [HttpPost]
-    public string register([FromHeader(Name = "Authorization")] string token,[FromBody] Attraction attraction)
+    public async Task<ActionResult<string>> register([FromHeader(Name = "Authorization")] string token, [FromBody] Attraction attraction)
     {
-        if (token == null)
+        var (tokenValid, isAdmin) = jwtTools.checkTokenAndRole(token);
+        if (!tokenValid || !isAdmin)
         {
-            return null;
+            return Unauthorized();
         }
-        if (token.Split(" ")[0] != "Bearer" && token.Split(" ")[1] != "admin")
-        {
-            return null;
-        }
-
         var result = context.attractions.Where(u => u.name == attraction.name).Count();
         if (result >= 1)
         {
-            return "attractionname already exists";
+            return BadRequest("attractionname already exists");
         }
-        context.attractions.Add(attraction);
-        context.SaveChanges();
-        return "attraction created";
+        await context.attractions.AddAsync(attraction);
+        await context.SaveChangesAsync();
+        return Ok("attraction created");
 
     }
-    [HttpPut]
-    public Attraction update([FromHeader(Name = "Authorization")] string token, Attraction attraction)
+    [HttpPut("{id}")]
+    public async Task<ActionResult<Attraction>> update([FromHeader(Name = "Authorization")] string token, int? id, [FromBody] Attraction attraction)
     {
-        if (token == null)
+        var (tokenValid, isAdmin) = jwtTools.checkTokenAndRole(token);
+        if (!tokenValid || !isAdmin)
         {
-            return null;
+            return Unauthorized();
         }
-        if (token.Split(" ")[0] != "Bearer"&& token.Split(" ")[1] != "admin")
+        if (id != attraction.ID)
         {
-            return null;
+            return BadRequest();
         }
 
-        var attractionToUpdate = context.attractions.Where(u => u.ID == attraction.ID).FirstOrDefault();
-        if (attractionToUpdate == null)
+        context.Entry(attraction).State = EntityState.Modified;
+
+        try
         {
-            return null;
+            await context.SaveChangesAsync();
         }
-        if (attractionToUpdate.name != "")
+        catch (DbUpdateConcurrencyException)
         {
-            attractionToUpdate.name = attraction.name;
+            if (!AttractionExists(id))
+            {
+                return NotFound();
+            }
+            else
+            {
+                throw;
+            }
         }
-        if (attractionToUpdate.fearLevel != attraction.fearLevel)
-        {
-            attractionToUpdate.fearLevel = attraction.fearLevel;
-        }
-        context.SaveChanges();
-        return attractionToUpdate;
+
+        return NoContent();
 
 
     }
     [HttpDelete]
-    public Attraction delete([FromHeader(Name = "Authorization")] string token, int id)
+    public async Task<ActionResult<Attraction>> delete([FromHeader(Name = "Authorization")] string token, int id)
     {
-        if (token == null)
+        var isAllowed = jwtTools.checkTokenAndRole(token);
+        if (!isAllowed.Item1)
         {
-            return null;
+            return Unauthorized();
         }
-        if (token.Split(" ")[0] != "Bearer"&& token.Split(" ")[1] != "admin")
+        if (context.attractions == null)
         {
-            return null;
+            return NotFound();
         }
-
-        var attraction = context.attractions.Where(u => u.ID == id).FirstOrDefault();
+        var attraction = await context.attractions.FindAsync(id);
         if (attraction == null)
         {
-            return null;
+            return NotFound();
         }
+
         context.attractions.Remove(attraction);
-        context.SaveChanges();
-        return attraction;
+        await context.SaveChangesAsync();
+
+        return NoContent();
 
 
+    }
+    private bool AttractionExists(int? id)
+    {
+        return (context.attractions?.Any(e => e.ID == id)).GetValueOrDefault();
     }
 }

@@ -1,8 +1,17 @@
 namespace apiApp.models;
+
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-public class DatabaseContext : DbContext
+public class DatabaseContext : IdentityDbContext<User>
 {
+    public DatabaseContext() : base()
+    {
+    }
+    public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options)
+    {
+    }
 
     public DbSet<User> users { get; set; }
     public DbSet<Attraction> attractions { get; set; }
@@ -17,7 +26,9 @@ public class DatabaseContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<User>().HasKey(u => u.ID);
+        modelBuilder.Entity<IdentityUserLogin<string>>().HasKey(x => x.UserId);
+        modelBuilder.Entity<IdentityUserRole<string>>().HasKey(x => x.UserId);
+        modelBuilder.Entity<IdentityUserToken<string>>().HasKey(x => x.UserId);
 
         modelBuilder.Entity<Attraction>().HasKey(a => a.ID);
 
